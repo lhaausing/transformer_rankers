@@ -41,7 +41,8 @@ class TransformerTrainer():
                  num_ns_eval, task_type, tokenizer, validate_every_epochs,
                  num_validation_batches, num_epochs, lr, sacred_ex,
                  validate_every_steps=-1, max_grad_norm=0.5, 
-                 validation_metric='ndcg_cut_10', num_training_instances=-1):
+                 validation_metric='ndcg_cut_10', num_training_instances=-1, 
+                 saving_strategy="epoch", saving_dir="/path/to/save/model/"):
 
         self.num_ns_eval = num_ns_eval
         self.task_type = task_type
@@ -53,7 +54,9 @@ class TransformerTrainer():
         self.num_epochs = num_epochs
         self.lr = lr
         self.sacred_ex = sacred_ex
-        self.num_training_instances=num_training_instances        
+        self.num_training_instances=num_training_instances       
+        self.saving_strategy = saving_strategy
+        self.saving_dir = saving_dir 
 
         self.num_gpu = torch.cuda.device_count()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -131,6 +134,12 @@ class TransformerTrainer():
                 if self.num_training_instances != -1 and total_instances >= self.num_training_instances:
                     logging.info("Reached num_training_instances of {} ({} batches). Early stopping.".format(self.num_training_instances, total_steps))
                     break
+            
+            # add code to save model here at the end of each epoch
+            if self.saving_strategy == "epoch":
+                os.makedirs(self.saving_dir, exist_ok=True)
+                self.model.save_pretrained(os.path.join(self.saving_dir, "epoch_{}".format(epoch+1)))
+            # end of code to save model
 
                 #logging for steps
                 is_validation_step = (self.validate_every_steps > 0 and total_steps % self.validate_every_steps == 0)

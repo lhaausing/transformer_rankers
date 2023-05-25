@@ -286,7 +286,8 @@ class QueryDocumentDataset(data.Dataset):
             len_each_batch = min(1000, self.data.shape[0])
             number_batches = self.data.shape[0]//len_each_batch
             logging.info("Batches of size {}.".format(len_each_batch))
-            for k in ['input_ids', 'token_type_ids', 'attention_mask']:
+            for k in ['input_ids', 'attention_mask']:
+            #for k in ['input_ids', 'token_type_ids', 'attention_mask']:
                 path_input = self.cache_path + "/{}_".format(k) + signature
                 self.mem_maps[k] = np.memmap(path_input, dtype='int', mode='w+', shape=(labels.shape[0], self.max_seq_len))
 
@@ -313,7 +314,8 @@ class QueryDocumentDataset(data.Dataset):
             del(self.mem_maps)
 
         self.mem_maps = {}
-        for k in ['input_ids', 'token_type_ids', 'attention_mask', 'labels']:
+        for k in ['input_ids', 'attention_mask', 'labels']:
+        #for k in ['input_ids', 'token_type_ids', 'attention_mask', 'labels']:
             filename = self.cache_path + "/{}_".format(k) + signature
             logging.info("Loading {} from {}".format(k, filename))
             data_shape = (self.number_instances, self.max_seq_len)
